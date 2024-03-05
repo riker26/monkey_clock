@@ -13,58 +13,131 @@ class CustomTimeInput extends StatefulWidget {
 const Color keypadButtonsColor = Color.fromARGB(255, 255, 255, 255);
 const Color keypadTextColor = Color.fromARGB(255, 255, 255, 255);
 
-class _CustomTimeInputState extends State<CustomTimeInput> {
-  String inputTime = "0:00";
+//Special Icons:
+const IconData backspaceButton = Icons.backspace;
+const IconData submitButton = Icons.send;
 
-  void _onKeyPress(String value) {
+class _CustomTimeInputState extends State<CustomTimeInput> {
+  List<String> timeChars = ['0', '0', ':', '0', '0'];
+
+  bool isValid12hrTime(List<String> timeChars) {
+    if (int.parse(timeChars[0]) >= 1 && int.parse(timeChars[1]) > 2) {
+      print('Invalid time: ${timeChars.join()}');
+      return false;
+    } else if (int.parse(timeChars[0]) > 2) {
+      print('Invalid time: ${timeChars.join()}');
+      return false;
+    } else if (int.parse(timeChars[3]) > 5) {
+      print('Invalid time: ${timeChars.join()}');
+      return false;
+    } else if (int.parse(timeChars[0]) > 1) {
+      print('Invalid time: ${timeChars.join()}');
+      return false;
+    } else if (int.parse(timeChars[1]) == 0) {
+      print('Invalid time: ${timeChars.join()}');
+      return false;
+    }
+    return true;
+  }
+
+  void _onKeyPress(dynamic value) {
     setState(() {
-      if (value == 'CE') {
-        inputTime = "0:00";
+      if (value == backspaceButton) {
+        // Implement backspace functionality, removing last non-placeholder character
+        for (int i = timeChars.length - 1; i >= 0; i--) {
+          if (timeChars[i] != '0' && timeChars[i] != ':') {
+            timeChars[i] = '0';
+            //move prev digits to the right
+            timeChars[4] = timeChars[3];
+            timeChars[3] = timeChars[1];
+            timeChars[1] = timeChars[0];
+            timeChars[0] = '0';
+
+            break;
+          }
+        }
+      } else if (value == submitButton) {
+        //check if time is valid
+        if (isValid12hrTime(timeChars)) {
+          print('Valid time: ${timeChars.join()}');
+        } else {
+          print('Invalid time: ${timeChars.join()}');
+        }
       } else {
-        if (inputTime == "0:00") {
-          inputTime = "";
-        }
-        inputTime += value;
-        if (inputTime.length == 2) {
-          inputTime += ':'; // Automatically add a colon after the hour input
-        }
-        if (inputTime.length > 5) {
-          inputTime = inputTime.substring(0, 5); // Limit input to 5 characters
-        }
+        // Update the time from the back, skipping the colon
+        //quickly move prev digits to the left
+
+        //ensure time is valid
+        //if the first digit is 1, the second digit must be 2 or less
+
+        timeChars[0] = timeChars[1];
+        timeChars[1] = timeChars[3];
+        timeChars[3] = timeChars[4];
+        timeChars[4] = value;
       }
     });
   }
 
-  Widget _keypadButton(String value) {
+  Widget _keypadButton(dynamic value) {
+    bool isIcon = value is IconData;
+
     return Padding(
       padding: const EdgeInsets.all(2),
-      child: OutlinedButton(
-        onPressed: () => _onKeyPress(value),
-        style: OutlinedButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        child: OutlinedButton(
+          onPressed: () => _onKeyPress(value),
+          style: OutlinedButton.styleFrom(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            backgroundColor: Color.fromARGB(5, 255, 255, 255),
+          ),
+          child: isIcon
+              ? Icon(value, color: keypadButtonsColor, size: 24)
+              : Text(
+                  value,
+                  style: TextStyle(fontSize: 24, color: keypadButtonsColor),
+                ),
         ),
-        child: Text(value,
-            style: TextStyle(fontSize: 24, color: keypadButtonsColor)),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Column(
       children: [
-        Text(
-          inputTime,
-          style: const TextStyle(
-              fontSize: 38,
-              fontWeight: FontWeight.bold,
-              color: keypadTextColor),
-        ),
+        RichText(
+          text: TextSpan(
+            children: timeChars.asMap().entries.map((entry) {
+              int index = entry.key;
+              String char = entry.value;
+              Color textColor = keypadTextColor; // Default color
 
+              // Check if the current '0' is leading (preceded only by other '0's and ':')
+              bool isLeadingZero = char == '0';
+              for (int i = 0; i < index; i++) {
+                if (timeChars[i] != '0' && timeChars[i] != ':') {
+                  isLeadingZero = false;
+                  break;
+                }
+              }
+
+              // Set color to grey if it's a leading zero
+              textColor = isLeadingZero ? Colors.grey : keypadTextColor;
+
+              return TextSpan(
+                text: char,
+                style: TextStyle(
+                  fontSize: 38,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              );
+            }).toList(),
+          ),
+        ),
         Container(
           height: screenHeight * 0.45,
           child: GridView.builder(
@@ -81,7 +154,7 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
             itemCount: 12, // Total number of buttons
             itemBuilder: (context, index) {
               // Define button labels
-              List<String> buttons = [
+              List<dynamic> buttons = [
                 '1',
                 '2',
                 '3',
@@ -91,9 +164,9 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
                 '7',
                 '8',
                 '9',
-                'CE',
+                backspaceButton,
                 '0',
-                ''
+                submitButton
               ];
               return _keypadButton(buttons[index]);
             },
