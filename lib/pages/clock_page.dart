@@ -103,3 +103,4 @@ String randomTime() {
 }
 
 //Drawer for the clock page
+//xcrun simctl boot A1BA12B8-068D-4DA0-8ABF-A326A9A6C2D5
