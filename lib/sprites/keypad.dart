@@ -18,7 +18,7 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
 
   void _onKeyPress(String value) {
     setState(() {
-      if (value == 'clear') {
+      if (value == 'CE') {
         inputTime = "0:00";
       } else {
         if (inputTime == "0:00") {
@@ -28,13 +28,16 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
         if (inputTime.length == 2) {
           inputTime += ':'; // Automatically add a colon after the hour input
         }
+        if (inputTime.length > 5) {
+          inputTime = inputTime.substring(0, 5); // Limit input to 5 characters
+        }
       }
     });
   }
 
   Widget _keypadButton(String value) {
     return Padding(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(2),
       child: OutlinedButton(
         onPressed: () => _onKeyPress(value),
         style: OutlinedButton.styleFrom(
@@ -49,22 +52,29 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
 
   @override
   Widget build(BuildContext context) {
+
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Column(
       children: [
         Text(
           inputTime,
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 38,
               fontWeight: FontWeight.bold,
               color: keypadTextColor),
         ),
-        Expanded(
+
+        Container(
+          height: screenHeight * 0.45,
           child: GridView.builder(
-            padding: const EdgeInsets.all(50),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            physics: NeverScrollableScrollPhysics(),
+            padding:
+                const EdgeInsets.only(top: 10, bottom: 10, left: 40, right: 40),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio:
-                  1.0, // Keep this to maintain square buttons, if desired
+                  1.4, // Keep this to maintain square buttons, if desired
               mainAxisSpacing: 4, // Spacing between rows
               crossAxisSpacing: 4, // Spacing between columns
             ),
@@ -81,7 +91,7 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
                 '7',
                 '8',
                 '9',
-                'clear',
+                'CE',
                 '0',
                 ''
               ];
