@@ -2,12 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:monkey_clock/pages/clock_page.dart';
 
 class CustomTimeInput extends StatefulWidget {
-  const CustomTimeInput({Key? key}) : super(key: key);
+  final Future<bool> Function(List<String>) onSubmitTime;
+  const CustomTimeInput({Key? key, required this.onSubmitTime})
+      : super(key: key);
 
   @override
   _CustomTimeInputState createState() => _CustomTimeInputState();
+  
 }
 
 //Colors:
@@ -41,36 +45,39 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
     return true;
   }
 
-  void _onKeyPress(dynamic value) {
-    setState(() {
-      if (value == backspaceButton) {
-            //move prev digits to the right
-            timeChars[4] = timeChars[3];
-            timeChars[3] = timeChars[1];
-            timeChars[1] = timeChars[0];
-            timeChars[0] = '0';
-
-      } else if (value == submitButton) {
-        //check if time is valid
-        if (isValid12hrTime(timeChars)) {
-          print('Valid time: ${timeChars.join()}');
+void _onKeyPress(dynamic value) async {
+    // Mark the method as async
+    if (value == backspaceButton) {
+      setState(() {
+        // Move previous digits to the right
+        timeChars[4] = timeChars[3];
+        timeChars[3] = timeChars[1];
+        timeChars[1] = timeChars[0];
+        timeChars[0] = '0';
+      });
+    } else if (value == submitButton) {
+      // First, check if the time is valid
+      if (isValid12hrTime(timeChars)) {
+        // If valid, then asynchronously check if the time is correct
+        bool isCorrect = await widget.onSubmitTime(timeChars);
+        if (isCorrect) {
+          print('Correct time!!!: ${timeChars.join()}');
         } else {
-          print('Invalid time: ${timeChars.join()}');
+          print('Incorrect time!!!: ${timeChars.join()}');
         }
       } else {
+        print('Invalid time: ${timeChars.join()}');
+      }
+    } else {
+      setState(() {
         // Update the time from the back, skipping the colon
-        //quickly move prev digits to the left
-
-        //ensure time is valid
-        //if the first digit is 1, the second digit must be 2 or less
-
         timeChars[0] = timeChars[1];
         timeChars[1] = timeChars[3];
         timeChars[3] = timeChars[4];
         timeChars[4] = value;
-      }
     });
-  }
+    }
+}
 
   Widget _keypadButton(dynamic value) {
     bool isIcon = value is IconData;
@@ -108,11 +115,10 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
           // ),
           ),
       child: Column(
-      children: [
+        children: [
           Container(
             alignment: Alignment.center,
             width: MediaQuery.of(context).size.width / 1.5,
-
             child: RichText(
               text: TextSpan(
                 style: const TextStyle(
@@ -148,44 +154,43 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
                   );
                 }).toList(),
               ),
-          ),
-        ),
-        Container(
-            height: screenHeight * 0.42,
-          child: GridView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            padding:
-                const EdgeInsets.only(
-                  top: 25, bottom: 10, left: 40, right: 40),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio:
-                  1.4, // Keep this to maintain square buttons, if desired
-              mainAxisSpacing: 4, // Spacing between rows
-              crossAxisSpacing: 4, // Spacing between columns
             ),
-            itemCount: 12, // Total number of buttons
-            itemBuilder: (context, index) {
-              // Define button labels
-              List<dynamic> buttons = [
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-                '6',
-                '7',
-                '8',
-                '9',
-                backspaceButton,
-                '0',
-                submitButton
-              ];
-              return _keypadButton(buttons[index]);
-            },
           ),
-        ),
-      ],
+          Container(
+            height: screenHeight * 0.42,
+            child: GridView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(
+                  top: 25, bottom: 10, left: 40, right: 40),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio:
+                    1.4, // Keep this to maintain square buttons, if desired
+                mainAxisSpacing: 4, // Spacing between rows
+                crossAxisSpacing: 4, // Spacing between columns
+              ),
+              itemCount: 12, // Total number of buttons
+              itemBuilder: (context, index) {
+                // Define button labels
+                List<dynamic> buttons = [
+                  '1',
+                  '2',
+                  '3',
+                  '4',
+                  '5',
+                  '6',
+                  '7',
+                  '8',
+                  '9',
+                  backspaceButton,
+                  '0',
+                  submitButton
+                ];
+                return _keypadButton(buttons[index]);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

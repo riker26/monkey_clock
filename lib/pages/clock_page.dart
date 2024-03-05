@@ -4,7 +4,6 @@ import 'package:monkey_clock/pages/drawer.dart';
 import 'package:analog_clock/analog_clock.dart';
 import 'package:monkey_clock/sprites/keypad.dart';
 
-
 class clockPage extends StatefulWidget {
   const clockPage({super.key});
 
@@ -15,8 +14,9 @@ class clockPage extends StatefulWidget {
 class _ClockPageState extends State<clockPage> {
   final TextEditingController _controller = TextEditingController();
 
-  @override
+  DateTime theTime = DateTime(2019, 1, 1, 9, 12, 15); //9:12:15 AM (24-hr time)
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -33,8 +33,6 @@ class _ClockPageState extends State<clockPage> {
       ),
       backgroundColor: Colors.grey[900],
       drawer: const AppDrawer(),
-
-    
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -55,21 +53,18 @@ class _ClockPageState extends State<clockPage> {
               showTicks: true,
               showNumbers: true,
               showAllNumbers: true,
+              showSecondHand: false,
               numberColor: Colors.white,
-              isLive: true,
+              isLive: false,
               digitalClockColor: Colors.white,
               width: 270,
               height: 270,
-              datetime:
-                  DateTime(2019, 1, 1, 9, 12, 15), //9:12:15 AM (24-hr time)
-
+              datetime: theTime,
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 12.0),
-            child: Expanded(
-              child: CustomTimeInput(),
-            ),
+            child: CustomTimeInput(onSubmitTime: handleSubmitTime),
           ),
           // Padding(
           //   //insert input field here
@@ -85,13 +80,22 @@ class _ClockPageState extends State<clockPage> {
           // ),
         ],
       ),
-      
-
-
-
-
     );
   }
+
+  Future<bool> handleSubmitTime(List<String> submittedTimeChars) async {
+    int submittedHour =
+        int.parse(submittedTimeChars[0] + submittedTimeChars[1]);
+    int submittedMinute =
+        int.parse(submittedTimeChars[3] + submittedTimeChars[4]);
+
+    return theTime.hour == submittedHour && theTime.minute == submittedMinute;
+  }
+
+
+
+
+
 }
 
 //function generates random time
@@ -100,6 +104,22 @@ String randomTime() {
   var minute = (DateTime.now().minute).toString();
   var second = (DateTime.now().second).toString();
   return hour + ':' + minute + ':' + second;
+}
+
+
+
+bool isCorrectTime(List<String> timeChars, DateTime time) {
+  //convert timeChars to DateTime
+  int guessHour = int.parse(timeChars[0] + timeChars[1]);
+  int guessMinute = int.parse(timeChars[3] + timeChars[4]);
+
+  if (time.hour == guessHour && time.minute == guessMinute) {
+    print('TRUE Guess: $guessHour:$guessMinute');
+    return true;
+  } else {
+    print('False Guess: $guessHour:$guessMinute');
+    return false;
+  }
 }
 
 //Drawer for the clock page
