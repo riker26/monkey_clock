@@ -35,13 +35,20 @@ class _ClockPageState extends State<clockPage> {
       drawer: const AppDrawer(),
 
     
-      body: const Column(
+      body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
             //insert analog clock
             padding: EdgeInsets.only(top: 25),
             child: AnalogClock(
+              decoration: BoxDecoration(
+                border: Border.all(
+                    width: 2.0,
+                    color: const Color.fromARGB(255, 218, 218, 218)),
+                color: Color.fromARGB(255, 46, 46, 46),
+                shape: BoxShape.circle,
+              ),
               useMilitaryTime: false,
               hourHandColor: Colors.white,
               minuteHandColor: Colors.lightBlue,
@@ -49,13 +56,20 @@ class _ClockPageState extends State<clockPage> {
               showNumbers: true,
               showAllNumbers: true,
               numberColor: Colors.white,
+              isLive: true,
               digitalClockColor: Colors.white,
               width: 270,
               height: 270,
+              datetime:
+                  DateTime(2019, 1, 1, 9, 12, 15), //9:12:15 AM (24-hr time)
+
             ),
           ),
-          Expanded(
-            child: CustomTimeInput(),
+          const Padding(
+            padding: EdgeInsets.only(top: 12.0),
+            child: Expanded(
+              child: CustomTimeInput(),
+            ),
           ),
           // Padding(
           //   //insert input field here

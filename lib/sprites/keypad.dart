@@ -43,19 +43,12 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
   void _onKeyPress(dynamic value) {
     setState(() {
       if (value == backspaceButton) {
-        // Implement backspace functionality, removing last non-placeholder character
-        for (int i = timeChars.length - 1; i >= 0; i--) {
-          if (timeChars[i] != '0' && timeChars[i] != ':') {
-            timeChars[i] = '0';
             //move prev digits to the right
             timeChars[4] = timeChars[3];
             timeChars[3] = timeChars[1];
             timeChars[1] = timeChars[0];
             timeChars[0] = '0';
 
-            break;
-          }
-        }
       } else if (value == submitButton) {
         //check if time is valid
         if (isValid12hrTime(timeChars)) {
@@ -105,8 +98,15 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
-
-    return Column(
+    return Container(
+      // Add a border to the container that wraps the Column
+      decoration: BoxDecoration(
+          // border: Border.all(
+          //   color: Colors.red, //make the border visible for debugging
+          //   width: 2,
+          // ),
+          ),
+      child: Column(
       children: [
         RichText(
           text: TextSpan(
@@ -139,11 +139,12 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
           ),
         ),
         Container(
-          height: screenHeight * 0.45,
+            height: screenHeight * 0.42,
           child: GridView.builder(
             physics: NeverScrollableScrollPhysics(),
             padding:
-                const EdgeInsets.only(top: 10, bottom: 10, left: 40, right: 40),
+                const EdgeInsets.only(
+                  top: 25, bottom: 10, left: 40, right: 40),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
               childAspectRatio:
@@ -173,6 +174,7 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
           ),
         ),
       ],
+      ),
     );
   }
 }
