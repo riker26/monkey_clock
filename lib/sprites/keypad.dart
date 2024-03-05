@@ -1,6 +1,7 @@
 // lib/sprites/keypad.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 class CustomTimeInput extends StatefulWidget {
   const CustomTimeInput({Key? key}) : super(key: key);
@@ -110,9 +111,16 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
       children: [
           Container(
             alignment: Alignment.center,
-            width: MediaQuery.of(context).size.width,
+            width: MediaQuery.of(context).size.width / 1.5,
+
             child: RichText(
               text: TextSpan(
+                style: const TextStyle(
+                  fontFamily: '', //add something later
+                  fontSize: 38,
+                  fontWeight: FontWeight.bold,
+                  color: keypadTextColor,
+                ),
                 children: timeChars.asMap().entries.map((entry) {
                   int index = entry.key;
                   String char = entry.value;
