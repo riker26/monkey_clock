@@ -108,34 +108,38 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
           ),
       child: Column(
       children: [
-        RichText(
-          text: TextSpan(
-            children: timeChars.asMap().entries.map((entry) {
-              int index = entry.key;
-              String char = entry.value;
-              Color textColor = keypadTextColor; // Default color
+          Container(
+            alignment: Alignment.center,
+            width: MediaQuery.of(context).size.width,
+            child: RichText(
+              text: TextSpan(
+                children: timeChars.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String char = entry.value;
+                  Color textColor = keypadTextColor; // Default color
 
-              // Check if the current '0' is leading (preceded only by other '0's and ':')
-              bool isLeadingZero = char == '0';
-              for (int i = 0; i < index; i++) {
-                if (timeChars[i] != '0' && timeChars[i] != ':') {
-                  isLeadingZero = false;
-                  break;
-                }
-              }
+                  // Check if the current '0' is leading (preceded only by other '0's and ':')
+                  bool isLeadingZero = char == '0';
+                  for (int i = 0; i < index; i++) {
+                    if (timeChars[i] != '0' && timeChars[i] != ':') {
+                      isLeadingZero = false;
+                      break;
+                    }
+                  }
 
-              // Set color to grey if it's a leading zero
-              textColor = isLeadingZero ? Colors.grey : keypadTextColor;
+                  // Set color to grey if it's a leading zero
+                  textColor = isLeadingZero ? Colors.grey : keypadTextColor;
 
-              return TextSpan(
-                text: char,
-                style: TextStyle(
-                  fontSize: 38,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              );
-            }).toList(),
+                  return TextSpan(
+                    text: char,
+                    style: TextStyle(
+                      fontSize: 38,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  );
+                }).toList(),
+              ),
           ),
         ),
         Container(
