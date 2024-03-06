@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:monkey_clock/pages/drawer.dart';
-import 'package:analog_clock/analog_clock.dart';
+//import 'package:analog_clock/analog_clock.dart';
 import 'package:monkey_clock/sprites/keypad.dart';
+import 'package:monkey_clock/sprites/game_controller.dart';
+import 'package:monkey_clock/sprites/custom_analog_clock.dart';
 
 class clockPage extends StatefulWidget {
   const clockPage({super.key});
@@ -12,9 +14,16 @@ class clockPage extends StatefulWidget {
 }
 
 class _ClockPageState extends State<clockPage> {
-  final TextEditingController _controller = TextEditingController();
+  final GameController _gameController = GameController();
+  //final TextEditingController _controller = TextEditingController();
 
-  DateTime theTime = DateTime(2019, 1, 1, 9, 12, 15); //9:12:15 AM (24-hr time)
+  //DateTime theTime = DateTime(2019, 1, 1, 9, 12, 15); //9:12:15 AM (24-hr time)
+
+  @override
+  void initState() {
+    super.initState();
+    _gameController.startGame();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +48,7 @@ class _ClockPageState extends State<clockPage> {
           Padding(
             //insert analog clock
             padding: EdgeInsets.only(top: 25),
-            child: AnalogClock(
+            child: CustomAnalogClock(
               decoration: BoxDecoration(
                 border: Border.all(
                     width: 2.0,
@@ -53,15 +62,19 @@ class _ClockPageState extends State<clockPage> {
               showTicks: true,
               showNumbers: true,
               showAllNumbers: true,
-              showSecondHand: false,
-              numberColor: Colors.white,
+              showSecondHand: true,
+              numberColor: Color.fromARGB(255, 236, 236, 236),
               isLive: false,
-              digitalClockColor: Colors.white,
+              digitalClockColor: Color.fromARGB(255, 187, 187, 187),
               width: 270,
               height: 270,
-              datetime: theTime,
+              minuteHandLengthMultiplier: 1.2,
+              secondHandLengthMultiplier: 1.5,
+              hourHandLengthMultiplier: 1.75,
+              datetime: _gameController.correctTime,
             ),
           ),
+
           Padding(
             padding: EdgeInsets.only(top: 12.0),
             child: CustomTimeInput(onSubmitTime: handleSubmitTime),
@@ -88,14 +101,10 @@ class _ClockPageState extends State<clockPage> {
         int.parse(submittedTimeChars[0] + submittedTimeChars[1]);
     int submittedMinute =
         int.parse(submittedTimeChars[3] + submittedTimeChars[4]);
-
-    return theTime.hour == submittedHour && theTime.minute == submittedMinute;
+    // print("correct time is: ${_gameController.correctTime}");
+    return _gameController.correctTime.hour == submittedHour &&
+        _gameController.correctTime.minute == submittedMinute;
   }
-
-
-
-
-
 }
 
 //function generates random time
@@ -105,8 +114,6 @@ String randomTime() {
   var second = (DateTime.now().second).toString();
   return hour + ':' + minute + ':' + second;
 }
-
-
 
 bool isCorrectTime(List<String> timeChars, DateTime time) {
   //convert timeChars to DateTime
