@@ -37,8 +37,6 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
       return false;
     } else if (int.parse(timeChars[0]) > 1) {
       return false;
-    } else if (int.parse(timeChars[1]) == 0) {
-      return false;
     }
     return true;
   }
