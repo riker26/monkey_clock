@@ -108,12 +108,6 @@ class _ClockPageState extends State<clockPage> {
 }
 
 //function generates random time
-String randomTime() {
-  var hour = (DateTime.now().hour).toString();
-  var minute = (DateTime.now().minute).toString();
-  var second = (DateTime.now().second).toString();
-  return hour + ':' + minute + ':' + second;
-}
 
 bool isCorrectTime(List<String> timeChars, DateTime time) {
   //convert timeChars to DateTime

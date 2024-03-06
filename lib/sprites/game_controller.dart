@@ -47,14 +47,15 @@ class GameController {
     if (_currentTime.hour == submittedHour &&
         _currentTime.minute == submittedMinute) {
       _score++;
-      _updateTime();
+      _correctTime = randomTime();
+      print("Correct! New time: $_correctTime");
     } else {
       _score--;
     }
   }
 
   void _startGameTimer() {
-    _gameTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _gameTimer = Timer.periodic(Duration(seconds: 1), (timer) { 
       _gameTimeRemaining -= Duration(seconds: 1);
 
       if (_gameTimeRemaining.inSeconds <= 0) {

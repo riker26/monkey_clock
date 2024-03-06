@@ -1,8 +1,11 @@
 // lib/sprites/keypad.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:monkey_clock/pages/clock_page.dart';
+import 'package:monkey_clock/sprites/game_controller.dart';
 
 class CustomTimeInput extends StatefulWidget {
   final Future<bool> Function(List<String>) onSubmitTime;
@@ -11,12 +14,12 @@ class CustomTimeInput extends StatefulWidget {
 
   @override
   _CustomTimeInputState createState() => _CustomTimeInputState();
-  
 }
 
 //Colors:
 const Color keypadButtonsColor = Color.fromARGB(255, 255, 255, 255);
-const Color keypadTextColor = Color.fromARGB(255, 255, 255, 255);
+Color defaultKeypadTextColor = Color.fromARGB(255, 255, 255, 255);
+Color keypadTextColor = defaultKeypadTextColor;
 
 //Special Icons:
 const IconData backspaceButton = Icons.backspace;
@@ -27,25 +30,63 @@ class _CustomTimeInputState extends State<CustomTimeInput> {
 
   bool isValid12hrTime(List<String> timeChars) {
     if (int.parse(timeChars[0]) >= 1 && int.parse(timeChars[1]) > 2) {
-      print('Invalid time: ${timeChars.join()}');
       return false;
     } else if (int.parse(timeChars[0]) > 2) {
-      print('Invalid time: ${timeChars.join()}');
       return false;
     } else if (int.parse(timeChars[3]) > 5) {
-      print('Invalid time: ${timeChars.join()}');
       return false;
     } else if (int.parse(timeChars[0]) > 1) {
-      print('Invalid time: ${timeChars.join()}');
       return false;
     } else if (int.parse(timeChars[1]) == 0) {
-      print('Invalid time: ${timeChars.join()}');
       return false;
     }
     return true;
   }
 
-void _onKeyPress(dynamic value) async {
+  void resetKeypadTextColor() {
+    setState(() {
+      keypadTextColor = defaultKeypadTextColor;
+    });
+  }
+
+  void flashEntryTextColor() {
+    Color flashColor = Color.fromARGB(255, 255, 148, 148);
+    int flashDuration = 80;
+
+    // First flash
+    setState(() {
+      keypadTextColor = flashColor;
+    });
+
+    Timer(Duration(milliseconds: flashDuration), () {
+      setState(() {
+        resetKeypadTextColor();
+      });
+
+      Timer(Duration(milliseconds: flashDuration), () {
+        setState(() {
+          keypadTextColor = flashColor;
+        });
+
+        Timer(Duration(milliseconds: flashDuration), () {
+          setState(() {
+            resetKeypadTextColor();
+          });
+          Timer(Duration(milliseconds: flashDuration), () {
+            setState(() {
+              keypadTextColor = flashColor;
+            });
+            Timer(Duration(milliseconds: flashDuration), () {
+              setState(() {
+                resetKeypadTextColor();
+              });
+            });
+          });
+        });
+      });
+    });
+  }
+  void _onKeyPress(dynamic value) async {
     // Mark the method as async
     if (value == backspaceButton) {
       setState(() {
@@ -61,12 +102,21 @@ void _onKeyPress(dynamic value) async {
         // If valid, then asynchronously check if the time is correct
         bool isCorrect = await widget.onSubmitTime(timeChars);
         if (isCorrect) {
-          print('Correct time!!!: ${timeChars.join()}');
+          print('Correct time!: ${timeChars.join()}');
+          setState(() {
+            keypadTextColor = Color.fromARGB(248, 122, 255, 65);
+          });
+          Timer(Duration(milliseconds: 90), resetKeypadTextColor);
         } else {
-          print('Incorrect time!!!: ${timeChars.join()}');
+          print('Incorrect time!: ${timeChars.join()}');
+          setState(() {
+            keypadTextColor = Color.fromARGB(248, 255, 128, 82);
+          });
+          Timer(Duration(milliseconds: 90), resetKeypadTextColor);
         }
       } else {
         print('Invalid time: ${timeChars.join()}');
+        flashEntryTextColor();
       }
     } else {
       setState(() {
@@ -75,9 +125,9 @@ void _onKeyPress(dynamic value) async {
         timeChars[1] = timeChars[3];
         timeChars[3] = timeChars[4];
         timeChars[4] = value;
-    });
+      });
     }
-}
+  }
 
   Widget _keypadButton(dynamic value) {
     bool isIcon = value is IconData;
@@ -121,7 +171,7 @@ void _onKeyPress(dynamic value) async {
             width: MediaQuery.of(context).size.width / 1.5,
             child: RichText(
               text: TextSpan(
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: '', //add something later
                   fontSize: 38,
                   fontWeight: FontWeight.bold,
